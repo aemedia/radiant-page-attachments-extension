@@ -181,15 +181,25 @@ module PageAttachmentTags
 
     *Usage*:
 
-    <pre><code><r:attachment:each [order="asc|desc"] [by="filename|size|created_at|..."] [limit=0] [offset=0] [extensions="png|pdf|doc"]>
+    <pre><code><r:attachment:each [order="asc|desc"] [by="filename|size|created_at|..."] [screen_gallery_attachment_type="site_image|promotional_video|editorial_content_showreel|miscellaneous_document"] [limit=0] [offset=0] [extensions="png|pdf|doc"]>
         <r:link /> - <r:date>
     </r:attachment:each></code></pre>
   }
   tag "attachment:each" do |tag|
     page = tag.locals.page
-
+    
+    order = tag.attr["order"] || "asc"
+    by = tag.attr["by"] || "id"
+    limit = (tag.attr["limit"].to_i rescue nil)
+    type = tag.attr["screen_gallery_attachment_type"]
+    conditions = if type
+      {:screen_gallery_attachment_type => type}
+    else
+      nil
+    end
+    
     returning String.new do |output|
-      page.attachments.find(:all, attachments_find_options(tag)).each do |att|
+      page.attachments.find(:all, :order => [by, order].join(" "), :limit => limit, :conditions => conditions).each do |att|
         tag.locals.attachment = att
         output << tag.expand
       end
