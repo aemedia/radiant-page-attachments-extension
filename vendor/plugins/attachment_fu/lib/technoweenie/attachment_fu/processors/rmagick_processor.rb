@@ -60,6 +60,49 @@ module Technoweenie # :nodoc:
           img.strip! unless attachment_options[:keep_profile]
           temp_paths.unshift write_to_temp_file(img.to_blob)
         end
+        
+        
+        def apply_rounded_corners!(img)
+          alpha_mask = ::Magick::Image.new(img.columns, img.rows) {
+            self.background_color = 'black'
+            self.format = 'PNG'
+          }
+
+          roundrect = ::Magick::Draw.new
+          roundrect.fill = 'white'
+          roundrect.stroke = 'white'
+
+          # Work out the scaling of the corner.  We assume a 4:3 ratio, so take the width
+          # (e.g. which would become 200 on a 200x150 thumb) and scale the 10x10 corner
+          # we'd use on a 200x150 thumb.
+          corner_size = (10 * (img.columns / 200.to_f)).round
+
+          # the -1 on x+y is because the rect seems to go 1 over (perhaps this is a stroke width thing?)
+          roundrect.roundrectangle(0, 0, (img.columns - 1), (img.rows - 1), corner_size, corner_size)
+          roundrect.draw(alpha_mask)
+
+          alpha_mask.write('/tmp/alpha_mask.png')
+
+          alpha_mask.matte = false
+          img.matte = true
+          img.matte_color = 'black'
+          img.format = 'PNG'
+          img.composite!(alpha_mask, ::Magick::NorthGravity, ::Magick::CopyOpacityCompositeOp)
+
+          img.strip!
+          self.temp_path = self.class.write_to_temp_file(img.to_blob, random_tempfile_filename + ".png")
+        end
+
+        def convert_to_png!(img)
+          if img.format !~ /png/i
+            img.format = 'PNG'
+            img.strip!
+            self.temp_path = self.class.write_to_temp_file(img.to_blob, random_tempfile_filename + ".png")
+          end
+        end
+                
+                
+                
       end
     end
   end
