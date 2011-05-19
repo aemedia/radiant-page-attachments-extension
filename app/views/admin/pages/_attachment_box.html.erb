@@ -1,0 +1,11 @@
+<div id="attachments">
+  <div id="attachments-toolbar">
+    <%= link_to_function image_tag('admin/plus.png'), 'add_attachment()', :title => "Add attachment" %>
+  </div>
+  <h3 id="attachments-title">Attachments (<%= @page.attachments.count %>)</h3>
+  <%= image('spinner.gif', :id => "attachments-spinner", :style => "display: none; float: right; margin: 5px;") %>
+  <% if @page.attachments.any? {|att| att.any_source_files_missing? } %>
+  <p class="warning attachment">Some of these attachments have <span class="missing_source_file">missing files</span>, try deleting and re-attaching to fix this.</p>
+  <% end %>
+  <table><%= render :partial => "attachment", :collection => @page.attachments %></table>
+</div>
