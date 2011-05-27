@@ -8,6 +8,11 @@ module PageAttachmentAssociations
       include InstanceMethods
       accepts_nested_attributes_for :attachments, :allow_destroy => true
       after_save :check_url_for_changes_and_act_accordingly
+
+      attr_accessor :add_attachments
+      attr_accessor :delete_attachments
+      after_save :save_attachments
+      after_save :destroy_attachments
     }
   end
 
@@ -63,7 +68,7 @@ module PageAttachmentAssociations
       if @add_attachments
         @add_attachments.each do |key, value|
           attachments << PageAttachment.new(:uploaded_data => value[:file], :screen_gallery_attachment_type => value[:screen_gallery_attachment_type])
-        end  
+        end
       end
       @add_attachments = nil
     end

@@ -32,7 +32,7 @@ module Technoweenie # :nodoc:
             resize_image_or_thumbnail! img
             self.width  = img.columns if respond_to?(:width)
             self.height = img.rows    if respond_to?(:height)
-            callback_with_args :after_resize, img
+            callback_with_args :after_resize, [self, img]
           end if image?
         end
 
@@ -47,8 +47,8 @@ module Technoweenie # :nodoc:
             img.crop_resized!(dimensions[0].to_i, dimensions[1].to_i)
           elsif size.is_a?(String) && size =~ /^b.*$/ # Resize w/border - example geometry string: b75x75
             dimensions = size[1..size.size].split("x")
-            img.change_geometry(dimensions.join("x")) do |cols, rows, image| 
-              image.resize!(cols<1 ? 1 : cols, rows<1 ? 1 : rows ) 
+            img.change_geometry(dimensions.join("x")) do |cols, rows, image|
+              image.resize!(cols<1 ? 1 : cols, rows<1 ? 1 : rows )
             end
             img.background_color = "black"
             x_offset = (img.columns - dimensions[0].to_i) / 2
@@ -60,8 +60,8 @@ module Technoweenie # :nodoc:
           img.strip! unless attachment_options[:keep_profile]
           temp_paths.unshift write_to_temp_file(img.to_blob)
         end
-        
-        
+
+
         def apply_rounded_corners!(img)
           alpha_mask = ::Magick::Image.new(img.columns, img.rows) {
             self.background_color = 'black'
@@ -90,19 +90,19 @@ module Technoweenie # :nodoc:
           img.composite!(alpha_mask, ::Magick::NorthGravity, ::Magick::CopyOpacityCompositeOp)
 
           img.strip!
-          self.temp_path = self.class.write_to_temp_file(img.to_blob, random_tempfile_filename + ".png")
+          temp_paths.unshift self.class.write_to_temp_file(img.to_blob, random_tempfile_filename + ".png")
         end
 
         def convert_to_png!(img)
           if img.format !~ /png/i
             img.format = 'PNG'
             img.strip!
-            self.temp_path = self.class.write_to_temp_file(img.to_blob, random_tempfile_filename + ".png")
+            temp_paths.unshift self.class.write_to_temp_file(img.to_blob, random_tempfile_filename + ".png")
           end
         end
-                
-                
-                
+
+
+
       end
     end
   end
