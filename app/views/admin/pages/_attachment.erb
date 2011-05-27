@@ -1,21 +1,21 @@
 <tr id="attachment_<%= attachment.id %>" class="attachment<%= attachment.any_source_files_missing? ? ' missing_source_files' : '' -%>">
-  <td><%= attachment.thumbnails.empty? ? "" : 
-         image_tag(attachment.public_filename(:icon), 
+  <td><%= attachment.thumbnails.empty? ? "" :
+         image_tag(attachment.public_filename(:icon),
                    {:class => "thumbnails#{attachment.source_file_missing?(:icon) ? ' missing_source_file' : ''}",
                     :title => (attachment.source_file_missing? ? 'This icon image is missing from the server.' : nil )}) -%></td>
-  <td><%= File.basename(attachment.public_filename) -%> (used as a <%= attachment.screen_gallery_attachment_type.humanize.downcase -%>)</td>
+  <td><%= File.basename(attachment.public_filename) -%> (used as a <%= attachment.screen_gallery_attachment_type.humanize.downcase if attachment && attachment.screen_gallery_attachment_type -%>)</td>
   <% if attachment.image? %>
-    <td><%= link_to("Download thumbnail", 
-                    attachment.public_filename(:thumb), 
+    <td><%= link_to("Download thumbnail",
+                    attachment.public_filename(:thumb),
                     {:class => (attachment.source_file_missing?(:thumb) ? 'missing_source_file' : nil),
-                     :title => (attachment.source_file_missing? ? 'This thumbnail image is missing from the server.' : nil)})  
-        -%> or <%= link_to("download full size", 
+                     :title => (attachment.source_file_missing? ? 'This thumbnail image is missing from the server.' : nil)})
+        -%> or <%= link_to("download full size",
                            attachment.public_filename,
                            {:class => (attachment.source_file_missing? ? 'missing_source_file' : nil),
-                            :title => (attachment.source_file_missing? ? 'This hi-res image is missing from the server.' : nil)}) 
+                            :title => (attachment.source_file_missing? ? 'This hi-res image is missing from the server.' : nil)})
         -%></td>
   <% else %>
-    <td><%= link_to("Download document", 
+    <td><%= link_to("Download document",
                     attachment.public_filename,
                     {:class => (attachment.source_file_missing? ? ' missing_source_file' : nil),
                      :title => (attachment.source_file_missing? ? 'This document is missing from the server.' : nil)})

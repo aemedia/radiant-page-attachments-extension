@@ -26,7 +26,7 @@ class PageAttachment < ActiveRecord::Base
   :foreign_key => 'updated_by'
   belongs_to :page
 
-  attr_accessible :title, :description
+  attr_accessible :title, :description, :screen_gallery_attachment_type
 
   def short_filename(wanted_length = 15, suffix = ' ...')
     (self.filename.length > wanted_length) ? (self.filename[0,(wanted_length - suffix.length)] + suffix) : self.filename
@@ -128,8 +128,8 @@ class PageAttachment < ActiveRecord::Base
       else
         args = [filename]
       end
-      old_path = File.join(RAILS_ROOT, 
-      file_system_path(self.thumbnail), 
+      old_path = File.join(RAILS_ROOT,
+      file_system_path(self.thumbnail),
       *PageAttachment.partitioned_path_for_url(location, sgat, *args))
       if File.exists?(old_path)
         FileUtils.mkdir_p(File.dirname(new_path))
@@ -144,7 +144,7 @@ class PageAttachment < ActiveRecord::Base
   def after_process_attachment
     if @saved_attachment
       if respond_to?(:process_attachment_with_processing) && thumbnailable? && !attachment_options[:thumbnails].blank? && parent_id.nil?
-        # I want to create the thumbnails from the original data, not 
+        # I want to create the thumbnails from the original data, not
         # the stuff I've just added corners to.
         temp_file = @temp_paths.last
         temp_file = temp_file.respond_to?(:path) ? temp_file.path : temp_file.to_s
