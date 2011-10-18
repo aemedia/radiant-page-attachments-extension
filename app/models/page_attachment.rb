@@ -8,13 +8,6 @@ class PageAttachment < ActiveRecord::Base
   validates_as_attachment
 
   after_resize do |page_attachment, img|
-    unless page_attachment.thumbnail == 'icon'
-      page_attachment.with_image do |img|
-        if page_attachment.respond_to?(:apply_rounded_corners!)
-          page_attachment.instance_eval {apply_rounded_corners! img}
-        end
-      end
-    end
     page_attachment.pngize!
   end
 
